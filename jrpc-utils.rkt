@@ -94,6 +94,9 @@
 ;;;
 ;;; Jprc response
 ;;;
+(define (make-success-response req [data (json-null)])
+  (make-response req 0 "Success" data))
+
 (define (make-response req code message [data (json-null)])
   (hash 'id (request-id req)
         'result (hash 'code code
