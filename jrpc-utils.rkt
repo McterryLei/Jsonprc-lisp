@@ -48,9 +48,10 @@
 
   ;; Handle request 
   (define (handle req out)
-    (let ([name   (request-name req)]
-          [params (request-params req)])
-      (write-json ((lookup-proc name) req) out)))
+    (let* ([name   (request-name req)]
+           [params (request-params req)]
+           [proc   (lookup-proc name)])
+      (write-json (proc req) out)))
 
   (loop (tcp-listen port)))
 
