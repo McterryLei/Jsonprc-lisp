@@ -1,6 +1,6 @@
 #lang racket
 
-(require "jrpc-utils.rkt")
+(require "jrpc.rkt")
 
 (define (jrpc-hello req)
   (define (hello-result name)
@@ -8,11 +8,11 @@
                              (printf "Hello ~a" name))))
   
   (let* ([params (request-params req)]
-         [name (hash-ref params 'name)])
-    (make-success-response req (hello-result name))))
+         [name   (hash-ref params 'name)])
+    (jrpc-success req (hello-result name))))
 
 ;; Register jrpc procedures
-(register-proc "hello" jrpc-hello)
+(jrpc-register-proc "hello" jrpc-hello)
 
 ;; Run server
 (jrpc-server-run 1234)

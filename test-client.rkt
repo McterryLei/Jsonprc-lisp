@@ -1,6 +1,6 @@
 #lang racket
 
-(require "jrpc-utils.rkt")
+(require "jrpc.rkt")
 
 (define *host* "localhost")
 (define *port* 1234)

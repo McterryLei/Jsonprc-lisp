@@ -32,10 +32,11 @@
 (define (jrpc-server-run port)
   ;; Main loop
   (define (loop listener)
-    (let-values ([(in out) (tcp-accept listener)])
-      (handle (read-request in) out)
-      (close-input-port in)
-      (close-output-port out))
+    (with-handlers ([exn:fail? (lambda (exn) 'error)])
+      (let-values ([(in out) (tcp-accept listener)])
+        (handle (read-request in) out)
+        (close-input-port in)
+        (close-output-port out)))
     (loop listener))
 
   ;; Read request from client
@@ -61,7 +62,7 @@
 ;;;
 (define *procedures* (hash))
 
-(define (register-proc method proc)
+(define (jrpc-register-proc method proc)
   (if (hash-has-key? *procedures* method)
       (printf "ERROR: Procedure is already registered: ~a~%" method)
       (set! *procedures* (hash-set *procedures* method proc))))
@@ -73,9 +74,9 @@
   
 (define (unfound-proc req)
   (printf "ERROR: Method not found: ~a~%" (request-name req))
-  (make-error-response (request-id req)
-                       (- 32601)
-                       "Method not found"))
+  (jrpc-error (request-id req)
+              (- 32601)
+              "Method not found"))
 
 
 ;;;
@@ -95,16 +96,16 @@
 ;;;
 ;;; Jprc response
 ;;;
-(define (make-success-response req [data (json-null)])
-  (make-response req 0 "Success" data))
+(define (jrpc-success req [data (json-null)])
+  (jrpc-response req 0 "Success" data))
 
-(define (make-response req code message [data (json-null)])
+(define (jrpc-response req code message [data (json-null)])
   (hash 'id (request-id req)
         'result (hash 'code code
                       'message message
                       'data data)))
 
-(define (make-error-response id code message)
+(define (jrpc-error id code message)
   (hash 'id id
         'error (hash 'code  code
                      'message message)))
