@@ -17,9 +17,12 @@
     (close-output-port out))
     
   (define (read-response in)
-    (printf "\n\nResponse:\n")
-    (printf (read-string 65535 in))
-    (close-input-port in))
+    (let ([result (read-string 65535 in)]) 
+      (printf "\n\nResponse :\n")
+      (printf "~a\n\n" result)
+      (close-input-port in)
+      (with-input-from-string result
+        (λ () (read-json)))))
 
   (let-values ([(in out) (tcp-connect host port)])
     (write-request out (make-request method params))
